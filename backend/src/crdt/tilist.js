@@ -1,25 +1,41 @@
-const TiListNode = require("./tilistNode").TiListNode;
-const { v4: uuidv4 } = require("uuid");
+import { TiListNode } from "./tilistNode.js";
+import { v4 as uuidv4 } from "uuid";
 
-class TiList {
+export class TiList {
   head = null; // starting point of the document
   replicaId = uuidv4();
 
+  constructor(head = null) {
+    this.head = head;
+  }
+
   /**
-   * Inserts a TiListNode in the TiList, this function will be called by the frontend editor
+   * Inserts a TiListNode in the TiList, this function will
+   * be called by the frontend editor
    * @param {number} index index where the new character needs to be inserted
    * @param {char} character the new character to be inserted
    */
-  async insert(index, character) {
+  insert(index, character, opnId = this.#generateOperationId()) {
     console.log(`inserting '${character}' at position ${index}`);
     if (this.head == null) {
-      this.head = new TiListNode(character, this.#generateOperationId());
+      this.head = new TiListNode(opnId, character);
       console.log(`successfully inserted '${character}' in position ${index}`);
       return;
     }
-    const nodeBeforeInsertionPoint = this.#findNode(index - 1);
 
-    // the node was found, now insert the node in the list
+    let nodeBeforeInsertionPoint = this.#findNode(index - 1);
+    // we will skip through the tombstones (if any)
+    // before inserting a new node
+    while (
+      nodeBeforeInsertionPoint &&
+      nodeBeforeInsertionPoint.next &&
+      nodeBeforeInsertionPoint.next.isTombstone
+    ) {
+      nodeBeforeInsertionPoint = nodeBeforeInsertionPoint.next;
+    }
+
+    // the actual `nodeBeforeInsertionPoint` was found,
+    // now we can add the new node after this node
     const insertedNodeId = this.#insertNodeIntoList(
       nodeBeforeInsertionPoint,
       this.#generateOperationId(),
@@ -34,10 +50,13 @@ class TiList {
    * is deleted from text
    * @param {number} index position of the deleted character
    */
-  async delete(index) {
+  delete(index) {
     const nodeToDelete = this.#findNode(index);
     // mark the node as tombstone to mark it deleted
     nodeToDelete.isTombstone = true;
+    console.log(
+      `successfully deleted '${nodeToDelete.value}' from position ${index}`
+    );
   }
 
   /**
@@ -66,10 +85,13 @@ class TiList {
   #findNode(index) {
     if (index < 0) return null;
     let node = this.head;
-    for (let i = 0; i < index && node != null; i++) {
-      // skip tombstone since they don't contribute in
-      // the character index calculation
-      if (node.isTombstone) continue;
+    let i = 0;
+    while (i < index && node != null) {
+      node = node.next;
+      if (node && node.isTombstone) continue;
+      i++;
+    }
+    while (node && node.isTombstone) {
       node = node.next;
     }
     return node;
@@ -83,7 +105,7 @@ class TiList {
    * @returns
    */
   #insertNodeIntoList(nodeBeforeInsertionPoint, opId, character) {
-    const tiListNode = new TiListNode(character, opId);
+    const tiListNode = new TiListNode(opId, character);
 
     if (nodeBeforeInsertionPoint == null) {
       // no previuos node found => new node needs to be inserted at head
@@ -99,8 +121,12 @@ class TiList {
     return tiListNode.id;
   }
 
+  /**
+   * This function serializes the data type
+   * to store in a file
+   */
   toString() {
-    const node = this.root;
+    let node = this.head;
     let stringifiedList = "";
     while (node) {
       stringifiedList += node.toString() + "\n";
@@ -113,5 +139,3 @@ class TiList {
     return Date.now() + "@" + this.replicaId;
   }
 }
-
-module.exports = { TiList };

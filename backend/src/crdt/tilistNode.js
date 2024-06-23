@@ -1,16 +1,14 @@
 // TiListNode represents a node in the TiList
-class TiListNode {
-  constructor(value, id) {
+export class TiListNode {
+  constructor(id, value, next = null, isTombstone = false) {
     this.id = id;
-    this.next = null;
+    this.next = next;
     // this.prev = null;
     this.value = value;
-    this.isTombstone = false;
+    this.isTombstone = isTombstone;
     // this.children = [];
   }
   toString() {
-    return `[${this.id},${this.next},${this.value},${this.isTombstone}]`;
+    return `${this.id},${this.value},${this.isTombstone}`;
   }
 }
-
-module.exports = { TiListNode };

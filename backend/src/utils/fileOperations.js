@@ -1,0 +1,28 @@
+import fs from "fs";
+
+/**
+ * Reads content of the specified file path
+ * @param {string} file path of the file to read from
+ * @returns 
+ */
+export const readFromFile = (file) => {
+  try {
+    return fs.readFileSync(file); // read synchronously (blocking)
+  } catch (err) {
+    console.error("error reading file:", err.message);
+    return undefined;
+  }
+};
+
+/**
+ * Writes content into the specified file path
+ * @param {string} content content to write into the file 
+ * @param {string} file path of the file to write into
+ */
+export const writeToFile = (content, file) => {
+  try {
+    fs.writeFileSync(file, content); // write synchronously (blocking)
+  } catch (err) {
+    console.error("error writing file:", err.message);
+  }
+};

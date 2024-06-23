@@ -1,16 +1,18 @@
 {
   "name": "client",
+  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "start": "nodemon src/server/index.js"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "fileserver": "nodemon src/server/fileServer.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.19.2",
     "nodemon": "^3.1.4",
     "uuid": "^10.0.0"
