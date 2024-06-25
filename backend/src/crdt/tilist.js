@@ -3,10 +3,11 @@ import { v4 as uuidv4 } from "uuid";
 
 export class TiList {
   head = null; // starting point of the document
-  replicaId = uuidv4();
+  replicaId = null;
 
-  constructor(head = null) {
+  constructor(head = null, replicaId = uuidv4()) {
     this.head = head;
+    this.replicaId = replicaId;
   }
 
   /**

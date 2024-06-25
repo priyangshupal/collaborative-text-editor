@@ -6,7 +6,6 @@ export class TiListNode {
     // this.prev = null;
     this.value = value;
     this.isTombstone = isTombstone;
-    // this.children = [];
   }
   toString() {
     return `${this.id},${this.value},${this.isTombstone}`;

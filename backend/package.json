@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "fileserver": "nodemon src/server/fileServer.js"
+    "fileserver": "nodemon src/server/fileServer.js",
+    "sigserver": "nodemon src/server/signalingServer.js"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,7 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "nodemon": "^3.1.4",
+    "socket.io": "^4.7.5",
     "uuid": "^10.0.0"
   },
   "devDependencies": {

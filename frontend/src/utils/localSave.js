@@ -1,23 +1,29 @@
+import {
+  DELETE_OPERATION,
+  HOST_URL,
+  INSERT_OPERATION,
+  RETAIN_OPERATION,
+} from "../constants";
 import { fetchAPI } from "./fetchAPI";
 
-export const localSave = (opertionsList) => {
+export const localSave = ({ operationsList, replicaId }) => {
   const localSaveOptions = {
     modifiedRange: 0,
     modification: "",
+    replicaId: replicaId,
   };
   let operationType = "";
-  for (let i = 0; i < opertionsList.length; i++) {
-    const operation = opertionsList[i];
-    if ("insert" in operation) {
-      console.log(`insert operation:`, operation);
-      operationType = "insert";
-      localSaveOptions.modification = operation["insert"]; // character to be inserted
-    } else if ("delete" in operation) {
-      console.log(`delete operation:`, operation);
-      operationType = "delete";
-    } else if ("retain" in operation) {
-      localSaveOptions.modifiedRange = operation["retain"]; // position of insertion
+  for (let i = 0; i < operationsList.length; i++) {
+    const operation = operationsList[i];
+    if (INSERT_OPERATION in operation) {
+      operationType = INSERT_OPERATION;
+      localSaveOptions.modification = operation[operationType]; // character to be inserted
+    } else if (DELETE_OPERATION in operation) {
+      operationType = DELETE_OPERATION;
+    } else if (RETAIN_OPERATION in operation) {
+      operationType = RETAIN_OPERATION;
+      localSaveOptions.modifiedRange = operation[operationType]; // position of insertion
     }
   }
-  fetchAPI(`http://localhost:8080/${operationType}`, localSaveOptions);
+  fetchAPI(`${HOST_URL}/${operationType}`, localSaveOptions);
 };

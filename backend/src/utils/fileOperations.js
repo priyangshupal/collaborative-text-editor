@@ -3,7 +3,7 @@ import fs from "fs";
 /**
  * Reads content of the specified file path
  * @param {string} file path of the file to read from
- * @returns 
+ * @returns
  */
 export const readFromFile = (file) => {
   try {
@@ -16,12 +16,12 @@ export const readFromFile = (file) => {
 
 /**
  * Writes content into the specified file path
- * @param {string} content content to write into the file 
- * @param {string} file path of the file to write into
+ * @param {string} content content to write into the file
+ * @param {string} filepath path of the file to write into
  */
-export const writeToFile = (content, file) => {
+export const writeToFile = (content, filepath) => {
   try {
-    fs.writeFileSync(file, content); // write synchronously (blocking)
+    fs.writeFileSync(filepath, content); // write synchronously (blocking)
   } catch (err) {
     console.error("error writing file:", err.message);
   }
