@@ -15,16 +15,29 @@ const replicaId = uuidv4();
 
 export const TextEditor = () => {
   const [quill, setQuill] = useState();
+  const [localContent, setLocalContent] = useState();
   let dataChannel = useRef();
   const rtcPeerConnection = useRef(new RTCPeerConnection(STUN_SERVERS));
+
+  useEffect(() => {
+    if (quill == null) return;
+    console.log("syncing local data:", localContent);
+    quill.setContents([{ insert: localContent }]);
+  }, [localContent]);
 
   useEffect(() => {
     socket.on("user-connected", (userId) => {
       dataChannel.current =
         rtcPeerConnection.current.createDataChannel(DATA_CHANNEL);
-      dataChannel.current.addEventListener("message", (e) => {
+      dataChannel.current.addEventListener("message", async (e) => {
         console.log("received message through data channel:", e.data);
-        localSave({ operationsList: JSON.parse(e.data), replicaId: replicaId });
+        const localData = await localSave({
+          operationsList: JSON.parse(e.data),
+          replicaId: replicaId,
+        });
+        if (localData) {
+          setLocalContent(localData["curContent"]);
+        }
       });
       rtcPeerConnection.current.createOffer().then((sdp) => {
         rtcPeerConnection.current.setLocalDescription(sdp);
@@ -39,9 +52,15 @@ export const TextEditor = () => {
     rtcPeerConnection.current.addEventListener("datachannel", (event) => {
       console.log("received data channel");
       dataChannel.current = event.channel;
-      dataChannel.current.addEventListener("message", (e) => {
+      dataChannel.current.addEventListener("message", async (e) => {
         console.log("received message through data channel:", e.data);
-        localSave({ operationsList: JSON.parse(e.data), replicaId: replicaId });
+        const localData = await localSave({
+          operationsList: JSON.parse(e.data),
+          replicaId: replicaId,
+        });
+        if (localData) {
+          setLocalContent(localData["curContent"]);
+        }
       });
     });
     return () => {
@@ -94,26 +113,27 @@ export const TextEditor = () => {
 
   useEffect(() => {
     if (quill == null) return;
-    const handler = (eventName, ...args) => {
-      if (eventName === "text-change") {
+    const handler = (delta, oldDelta, source) => {
+      if (source == "user") {
         // on any text change in the editor, save that change locally
         // and then send it to the other collaborator
+        console.log("user triggered this change", delta);
         localSave({
-          operationsList: args[0].ops,
+          operationsList: delta.ops,
           replicaId: replicaId,
         });
         console.log(
           "sending data through data channel:",
-          JSON.stringify(args[0].ops)
+          JSON.stringify(delta.ops)
         );
         // sending to the collaborator (other peer)
         if (dataChannel.current != null)
-          dataChannel.current.send(JSON.stringify(args[0].ops));
+          dataChannel.current.send(JSON.stringify(delta.ops));
       }
     };
-    quill.on("editor-change", handler);
+    quill.on("text-change", handler);
 
-    return () => quill.off("editor-change", handler);
+    return () => quill.off("text-change", handler);
   }, [quill]);
 
   const wrapperRef = useCallback((wrapper) => {

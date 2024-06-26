@@ -25,12 +25,12 @@ export class TiList {
     }
 
     let nodeBeforeInsertionPoint = this.#findNode(index - 1);
-    // we will skip through the tombstones (if any)
-    // before inserting a new node
+    // move forward until the next node has lower
+    // id than the new node
     while (
       nodeBeforeInsertionPoint &&
       nodeBeforeInsertionPoint.next &&
-      nodeBeforeInsertionPoint.next.isTombstone
+      nodeBeforeInsertionPoint.next.id > opnId
     ) {
       nodeBeforeInsertionPoint = nodeBeforeInsertionPoint.next;
     }
@@ -62,7 +62,7 @@ export class TiList {
 
   /**
    * Reads the TiList (skipping the tombstones) and
-   * returns the sequence.
+   * returns the text sequence.
    */
   read() {
     let node = this.head;
@@ -109,7 +109,7 @@ export class TiList {
     const tiListNode = new TiListNode(opId, character);
 
     if (nodeBeforeInsertionPoint == null) {
-      // no previuos node found => new node needs to be inserted at head
+      // no previous node found => new node needs to be inserted at head
       console.log(`inserting '${character}' into head position`);
       tiListNode.next = this.head;
       this.head = tiListNode;
@@ -118,7 +118,6 @@ export class TiList {
       tiListNode.next = nodeBeforeInsertionPoint.next;
       nodeBeforeInsertionPoint.next = tiListNode;
     }
-    console.log(tiListNode.toString());
     return tiListNode.id;
   }
 

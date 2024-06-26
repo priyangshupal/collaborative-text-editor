@@ -20,7 +20,7 @@ app.post("/insert", (req, res) => {
       // insert into the list after it is deserialized
       tiList.insert(reqBody["modifiedRange"], reqBody["modification"]);
       writeToFile(tiList.toString(), getStorePath(reqBody.replicaId));
-      res.send({ message: "success" });
+      res.send({ curContent: tiList.read() });
     }
   );
 });
@@ -35,7 +35,7 @@ app.post("/delete", (req, res) => {
       // delete from the list after it is deserialized
       tiList.delete(reqBody["modifiedRange"]);
       writeToFile(tiList.toString(), getStorePath(reqBody.replicaId));
-      res.send({ message: "success" });
+      res.send({ curContent: tiList.read() });
     }
   );
 });

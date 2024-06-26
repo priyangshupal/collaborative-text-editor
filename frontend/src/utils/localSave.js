@@ -6,7 +6,7 @@ import {
 } from "../constants";
 import { fetchAPI } from "./fetchAPI";
 
-export const localSave = ({ operationsList, replicaId }) => {
+export const localSave = async ({ operationsList, replicaId }) => {
   const localSaveOptions = {
     modifiedRange: 0,
     modification: "",
@@ -25,5 +25,6 @@ export const localSave = ({ operationsList, replicaId }) => {
       localSaveOptions.modifiedRange = operation[operationType]; // position of insertion
     }
   }
-  fetchAPI(`${HOST_URL}/${operationType}`, localSaveOptions);
+  // return the locally saved content
+  return await fetchAPI(`${HOST_URL}/${operationType}`, localSaveOptions);
 };

@@ -12,4 +12,5 @@ export const fetchAPI = async (url, reqBody) => {
   } catch (error) {
     console.error(`error while calling ${url}: ${error}`);
   }
+  return null;
 };

@@ -44,6 +44,6 @@ export const deserializeTiList = (file, replicaId, setTiListHead) => {
 
   rl.on("close", () => {
     console.log("finished deserializing file");
-    setTiListHead(new TiList(tiListHead));
+    setTiListHead(new TiList(tiListHead, replicaId));
   });
 };
