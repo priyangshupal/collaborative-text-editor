@@ -13,9 +13,9 @@ export const deserializeTiList = (file, replicaId, setTiListHead) => {
     if (line == "") {
       return null;
     }
-    let [id, value, isTombstone] = line.split(",");
+    let [id, value, isTombstone, attributes] = line.split(",");
     isTombstone = isTombstone === "true"; // convert string to boolean
-    return new TiListNode(id, value, null, isTombstone);
+    return new TiListNode(id, value, null, isTombstone, JSON.parse(attributes));
   };
 
   // check if file exists, if it doesn't return empty TiList

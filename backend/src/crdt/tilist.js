@@ -16,7 +16,13 @@ export class TiList {
    * @param {number} index index where the new character needs to be inserted
    * @param {char} character the new character to be inserted
    */
-  insert(index, character, opnId = this.#generateOperationId()) {
+  insert(index, character, attributes = null) {
+    const opnId = this.#generateOperationId();
+    // store newline character as \\n so that during
+    // serializing, this node's serialization doesn't
+    // break into two lines and it is stored as '\n'
+    if (character == '\n')
+      character = '\\n';
     console.log(`inserting '${character}' at position ${index}`);
     if (this.head == null) {
       this.head = new TiListNode(opnId, character);
@@ -40,7 +46,8 @@ export class TiList {
     const insertedNodeId = this.#insertNodeIntoList(
       nodeBeforeInsertionPoint,
       this.#generateOperationId(),
-      character
+      character,
+      attributes
     );
     console.log(`successfully inserted '${character}' in position ${index}`);
   }
@@ -84,15 +91,14 @@ export class TiList {
    * @returns {TiListNode} node corresponding to the provided character position
    */
   #findNode(index) {
-    if (index < 0) return null;
     let node = this.head;
     let i = 0;
     while (i < index && node != null) {
       node = node.next;
-      if (node && node.isTombstone) continue;
+      if (node && (node.isTombstone || node.attributes)) continue;
       i++;
     }
-    while (node && node.isTombstone) {
+    while (node && (node.isTombstone || node.attributes)) {
       node = node.next;
     }
     return node;
@@ -105,8 +111,8 @@ export class TiList {
    * @param {char} character character to insert
    * @returns
    */
-  #insertNodeIntoList(nodeBeforeInsertionPoint, opId, character) {
-    const tiListNode = new TiListNode(opId, character);
+  #insertNodeIntoList(nodeBeforeInsertionPoint, opId, character, attributes) {
+    const tiListNode = new TiListNode(opId, character, null, false, attributes);
 
     if (nodeBeforeInsertionPoint == null) {
       // no previous node found => new node needs to be inserted at head
@@ -122,7 +128,45 @@ export class TiList {
   }
 
   /**
-   * This function serializes the data type
+   * `getContentsForEditor` converts the `TiList` into a
+   * content format supported by the editor. This allows
+   * the editor to render the data stored in the CRDT
+   */
+  getContentsForEditor() {
+    let node = this.head,
+      content = [],
+      tempContent = "",
+      activeAttribute = "";
+    while (node) {
+      if (node.isTombstone) {
+        node = node.next;
+        continue;
+      }
+      if (node.attributes) {
+        if (activeAttribute != "") {
+          let attributes = {};
+          attributes[activeAttribute] = true;
+          content.push({ insert: tempContent, attributes: attributes });
+          activeAttribute = "";
+        } else {
+          activeAttribute = Object.keys(node.attributes)[0];
+          content.push({ insert: tempContent });
+        }
+        tempContent = "";
+      } else {
+        // since newline character is stored as \\n, while
+        // returning send it back as \n
+        tempContent += node.value == '\\n' ? '\n' : node.value;
+      }
+      node = node.next;
+    }
+    content.push({ insert: tempContent });
+    content.push({ insert: "\n" });
+    return content;
+  }
+
+  /**
+   * `toString` function serializes the data type
    * to store in a file
    */
   toString() {

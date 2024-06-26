@@ -18,9 +18,14 @@ app.post("/insert", (req, res) => {
     reqBody.replicaId,
     (tiList) => {
       // insert into the list after it is deserialized
-      tiList.insert(reqBody["modifiedRange"], reqBody["modification"]);
-      writeToFile(tiList.toString(), getStorePath(reqBody.replicaId));
-      res.send({ curContent: tiList.read() });
+      for (let i = 0; i < reqBody["modifiedLength"]; i++) {
+        tiList.insert(reqBody["modifiedIndex"] + i, reqBody["modification"][i]);
+      }
+      writeToFile(
+        tiList.toString(), // serialized TiList
+        getStorePath(reqBody.replicaId)
+      );
+      res.send({curContent: tiList.getContentsForEditor()});
     }
   );
 });
@@ -33,9 +38,45 @@ app.post("/delete", (req, res) => {
     reqBody.replicaId,
     (tiList) => {
       // delete from the list after it is deserialized
-      tiList.delete(reqBody["modifiedRange"]);
-      writeToFile(tiList.toString(), getStorePath(reqBody.replicaId));
-      res.send({ curContent: tiList.read() });
+      for (let i = 0; i < reqBody["modifiedLength"]; i++) {
+        tiList.delete(reqBody["modifiedIndex"]);
+      }
+      writeToFile(
+        tiList.toString(), // serialized TiList
+        getStorePath(reqBody.replicaId)
+      );
+      res.send({curContent: tiList.getContentsForEditor()});
+    }
+  );
+});
+
+app.post("/richtext", (req, res) => {
+  const reqBody = req.body;
+  console.log(`/richtext called, reqBody:`, reqBody);
+  deserializeTiList(
+    getStorePath(reqBody.replicaId),
+    reqBody.replicaId,
+    (tiList) => {
+      // insert into the list after it is deserialized
+
+      // start of `attribute`
+      tiList.insert(
+        reqBody["modifiedIndex"],
+        reqBody["modification"],
+        reqBody["attributes"]
+      );
+
+      // end of `attribute`
+      tiList.insert(
+        reqBody["modifiedIndex"] + reqBody["modifiedLength"],
+        reqBody["modification"],
+        reqBody["attributes"]
+      );
+      writeToFile(
+        tiList.toString(), // serialized TiList
+        getStorePath(reqBody.replicaId)
+      );
+      res.send({curContent: tiList.getContentsForEditor()});
     }
   );
 });

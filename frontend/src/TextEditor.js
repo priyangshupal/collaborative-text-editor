@@ -22,7 +22,7 @@ export const TextEditor = () => {
   useEffect(() => {
     if (quill == null) return;
     console.log("syncing local data:", localContent);
-    quill.setContents([{ insert: localContent }]);
+    quill.setContents(localContent);
   }, [localContent]);
 
   useEffect(() => {
@@ -117,18 +117,19 @@ export const TextEditor = () => {
       if (source == "user") {
         // on any text change in the editor, save that change locally
         // and then send it to the other collaborator
-        console.log("user triggered this change", delta);
+        console.log("user triggered this change", JSON.stringify(delta.ops));
         localSave({
           operationsList: delta.ops,
           replicaId: replicaId,
         });
-        console.log(
-          "sending data through data channel:",
-          JSON.stringify(delta.ops)
-        );
         // sending to the collaborator (other peer)
-        if (dataChannel.current != null)
+        if (dataChannel.current != null) {
+          console.log(
+            "sending data through data channel:",
+            JSON.stringify(delta.ops)
+          );
           dataChannel.current.send(JSON.stringify(delta.ops));
+        }
       }
     };
     quill.on("text-change", handler);
