@@ -25,28 +25,28 @@ export const TextEditor = () => {
     quill.setContents(localContent);
   }, [localContent]);
 
-  // useEffect(() => {
-  //   socket.on("user-connected", (userId) => {
-  //     dataChannel.current =
-  //       rtcPeerConnection.current.createDataChannel(DATA_CHANNEL);
-  //     dataChannel.current.addEventListener("message", async (e) => {
-  //       console.log("received message through data channel:", e.data);
-  //       const localData = await localSave({
-  //         operationsList: JSON.parse(e.data),
-  //         replicaId: replicaId,
-  //       });
-  //       if (localData) {
-  //         setLocalContent(localData["curContent"]);
-  //       }
-  //     });
-  //     rtcPeerConnection.current.createOffer().then((sdp) => {
-  //       rtcPeerConnection.current.setLocalDescription(sdp);
-  //       console.log("sending offer");
-  //       socket.emit("offer", sdp);
-  //     });
-  //   });
-  //   return () => socket.off("user-connected");
-  // }, []);
+  useEffect(() => {
+    socket.on("user-connected", (userId) => {
+      dataChannel.current =
+        rtcPeerConnection.current.createDataChannel(DATA_CHANNEL);
+      dataChannel.current.addEventListener("message", async (e) => {
+        console.log("received message through data channel:", e.data);
+        const localData = await localSave({
+          operationsList: JSON.parse(e.data),
+          replicaId: replicaId,
+        });
+        if (localData) {
+          setLocalContent(localData["curContent"]);
+        }
+      });
+      rtcPeerConnection.current.createOffer().then((sdp) => {
+        rtcPeerConnection.current.setLocalDescription(sdp);
+        console.log("sending offer");
+        socket.emit("offer", sdp);
+      });
+    });
+    return () => socket.off("user-connected");
+  }, []);
 
   useEffect(() => {
     rtcPeerConnection.current.addEventListener("datachannel", (event) => {
