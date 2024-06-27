@@ -28,6 +28,13 @@ It is recommended to have node and npm installed on the system. This project was
 
 Install the backend and frontend dependencies by running `npm install` inside the `backend` and `frontend` folders respectively.
 
+### Running test cases
+
+Run the following command to check the code against all the test cases
+```
+npm run --prefix backend test
+```
+
 ## Usage
 
 The project can be run in three steps by running the below commands in the root directory:

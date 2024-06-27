@@ -21,8 +21,7 @@ export class TiList {
     // store newline character as \\n so that during
     // serializing, this node's serialization doesn't
     // break into two lines and it is stored as '\n'
-    if (character == '\n')
-      character = '\\n';
+    if (character == "\n") character = "\\n";
     console.log(`inserting '${character}' at position ${index}`);
     if (this.head == null) {
       this.head = new TiListNode(opnId, character);
@@ -91,6 +90,7 @@ export class TiList {
    * @returns {TiListNode} node corresponding to the provided character position
    */
   #findNode(index) {
+    if (index < 0) return null;
     let node = this.head;
     let i = 0;
     while (i < index && node != null) {
@@ -156,7 +156,7 @@ export class TiList {
       } else {
         // since newline character is stored as \\n, while
         // returning send it back as \n
-        tempContent += node.value == '\\n' ? '\n' : node.value;
+        tempContent += node.value == "\\n" ? "\n" : node.value;
       }
       node = node.next;
     }
