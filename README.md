@@ -22,7 +22,7 @@ For more details about the CRDT implementation, see the [documentation](./docs/R
 
 ### Prerequisites
 
-It is recommended to have node and npm installed on the system. This project was built using node version `20.11.1` and npm version `10.5.1`.
+It is recommended to have `node` and `npm` installed. This project was built using node version `20.11.1` and npm version `10.5.1`.
 
 ### Installing dependencies
 
@@ -30,7 +30,8 @@ Install the backend and frontend dependencies by running `npm install` inside th
 
 ### Running test cases
 
-Run the following command to check the code against all the test cases
+Run the following command to check the code against all the available test cases
+
 ```
 npm run --prefix backend test
 ```
